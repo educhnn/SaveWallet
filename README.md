@@ -4,6 +4,12 @@ SaveWallet es una aplicación de consola en Python para registrar y administrar 
 
 El objetivo es poder llevar un control básico de gastos, y crear un proyecto.
 
+## Objetivos
+Proyecto práctico para mejorar.
+- Lógica de programación en Python
+- Manejo de archivos (JSON y CSV)
+- Organización y estructuración de código
+
 ## Funciones
 
 - Agregar gastos (monto y categoría)

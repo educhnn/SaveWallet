@@ -1,37 +1,38 @@
 import os
-import json
+from storage import guardar_gastos, cargar_gastos
 
-gastos = []
+gastos = cargar_gastos()
+
+def pausa():
+    input("Presione enter para continuar...")
+
+def texto():
+    return input("Seleccione la categoria: ").lower()
+
+def enteros():
+    return int(input("Introduzca una opción: "))
+
+def floats():
+    return float(input("Introduzca cuanto gastó: "))
 
 def limpiar_pantalla():
     os.system("cls" if os.name == "nt" else "clear")
 
-def guardar_gastos():
-    with open("gastos.json", "w")as archivo:
-        json.dump(gastos, archivo)
-
-def cargar_gastos():
-    global gastos
-    try:
-        with open("gastos.json","r")as archivo:
-            gastos = json.load(archivo)
-    except FileNotFoundError:
-        gastos = []
-
 def agregar_gasto():
     limpiar_pantalla()
     try:
-        monto = float(input("Indique cuanto fue su gasto: "))
-        categoria = input("Seleccione la categoria: ").lower()
+        monto = floats()
+        categoria = texto()
         gasto = {
             "monto": monto,
             "categoria": categoria
         }
         gastos.append(gasto)
-        guardar_gastos()
+        guardar_gastos(gastos)
     except ValueError:
         limpiar_pantalla()
-        input("INDIQUE UNICAMENTE NUMEROS")
+        print("Introduce un numero valido")
+        pausa()
         return
 
 def mostrar_gastos():
@@ -39,7 +40,7 @@ def mostrar_gastos():
     print("\tGASTOS")
     for gasto in gastos:
         print(f"{gasto['categoria']} - ${gasto['monto']}")
-    input("Presiona enter para continuar...")
+    pausa()
 
 def mostrar_total():
     total = 0
@@ -48,11 +49,11 @@ def mostrar_total():
     for gasto in gastos:
         total += gasto["monto"] 
     print(f"Usted gastó un total de: ${total}")
-    input("Presione enter para continuar...")
+    pausa()
 
 def filtrar():
     limpiar_pantalla()
-    filtro = input("Ingrese la categoria: ").lower()
+    filtro = texto()
     limpiar_pantalla()
     print("\tFILTRO")
     encontrado = False
@@ -64,42 +65,46 @@ def filtrar():
         
     if not encontrado:
         print("LA CATEGORIA NO EXISTE")
-
-    input("Presione enter para continuar...")
+    pausa()
 
 def borrar_gastos():
-    global gastos
     limpiar_pantalla()
     print("\tBORRAR GASTOS")
     if gastos:
         for i, gasto in enumerate(gastos):
             print(f"{i+1}) {gasto['categoria']} - ${gasto['monto']}")
         try:
-            opcion = int(input("Seleccione el gasto que desea borrar: "))
+            opcion = enteros()
             gastos.pop(opcion-1)
-            guardar_gastos()
+            guardar_gastos(gastos)
         except IndexError:
             limpiar_pantalla()
-            input("EL GASTO ES INVALIDO PRESIONE ENTER PARA CONTINUAR...")
+            print("EL GASTO ES INVALIDO PRESIONE ENTER PARA CONTINUAR...")
+            pausa()
         except ValueError:
             limpiar_pantalla()
-            input("INTRODUCE UNICAMENTE VALORES NUMERICOS PRESIONA ENTER PARA CONTINUAR...")
+            print("INTRODUCE UNICAMENTE VALORES NUMERICOS PRESIONA ENTER PARA CONTINUAR...")
+            pausa()
     else:
-        input("No existen gastos actualmente, presione enter para continuar...")
+        print("No existen gastos actualmente")
+        pausa()
 
 def exportar_csv():
     limpiar_pantalla()
     if not gastos:
-        input("No existen gastos actualmente, presione enter para continuar...")
+        print("No existen gastos actualmente")
+        pausa()
         return
     try:
         with open("gastos.csv", "w",encoding="utf-8")as archivo:
             archivo.write("categoria,monto\n")
             for gasto in gastos:
                 archivo.write(f"{gasto['categoria']},{gasto['monto']}\n")
-            input("Archivo creado correctamente...")
+            print("Archivo creado correctamente...")
+            pausa()
     except:
-        input("Error al crear el archivo CSV, presione enter para continuar...")
+        print("Error al crear el archivo CSV")
+        pausa()
 
 def editar_gasto():
     limpiar_pantalla()
@@ -113,68 +118,78 @@ def editar_gasto():
             print(f"Gasto seleccionado: {gastos[gasto-1]['categoria']} - ${gastos[gasto-1]['monto']}")
             print("1) Categoría")
             print("2) Monto")
-            opcion = input("\nSeleccione el gasto que desea editar: ")
+            opcion = enteros()
 
-            if opcion == "1":
+            if opcion == 1:
                 limpiar_pantalla()
-                modificacion = input("Escriba la categoria: ").lower()
+                modificacion = texto()
                 gastos[gasto-1]["categoria"] = modificacion
-                guardar_gastos()
+                guardar_gastos(gastos)
                 limpiar_pantalla()
-                input("Gasto guardado correctamente, presione enter para continuar...")
-            elif opcion == "2":
+                print("Gasto guardado correctamente")
+                pausa()
+            elif opcion == 2:
                 limpiar_pantalla()
                 try:
-                    modificacion = float(input("Escriba el monto: "))
+                    modificacion = floats()
                     gastos[gasto-1]["monto"] = modificacion
-                    guardar_gastos()
+                    guardar_gastos(gastos)
                     limpiar_pantalla()
-                    input("Gasto guardado correctamente, presione enter para continuar...")
+                    print("Gasto guardado correctamente")
+                    pausa()
                 except ValueError:
                     limpiar_pantalla()
-                    input("INTRODUZCA UNICAMENTE VALORES NUMERICOS, PRESIONE ENTER PARA CONTINUAR...")
+                    print("INTRODUZCA UNICAMENTE VALORES NUMERICOS")
+                    pausa()
             else:
                 limpiar_pantalla()
-                input("OPCION NO VALIDA PRESIONE ENTER PARA CONTNIUAR...")
+                print("OPCION NO VALIDA")
+                pausa()
 
         except ValueError:
             limpiar_pantalla()
-            input("INTRODUCE UNICAMENTE VALORES NUMERICOS, PULSE ENTER PARA CONTINUAR...")
+            print("INTRODUCE UNICAMENTE VALORES NUMERICOS")
+            pausa()
         except IndexError:
             limpiar_pantalla()
-            input("EL GASTO ES INVALIDO PRESIONE ENTER PARA CONTINUAR...")
+            print("EL GASTO ES INVALIDO")
+            pausa()
 
-cargar_gastos()
-while True:
-    limpiar_pantalla()
-    print(""" SAVEWALLET
-1) Agregar gastos
-2) Gastos
-3) Total
-4) Filtrar por categoria
-5) Borrar gasto
-6) Editar Gasto
-7) Exportar a CSV
-X) Salir\n""")
-    
-    opcion = input("Seleccione la opción: ")
-
-    if opcion == "1":
-        agregar_gasto()
-    elif opcion == "2":
-        mostrar_gastos()
-    elif opcion == "3":
-        mostrar_total()
-    elif opcion == "4":
-        filtrar()
-    elif opcion == "5":
-        borrar_gastos()
-    elif opcion == "6":
-        editar_gasto()
-    elif opcion == "7":
-        exportar_csv()
-    elif opcion.lower() == "x":
-        break
-    else:
+def main():
+    while True:
         limpiar_pantalla()
-        input("Opcion no válida presione enter para regresar al menú")
+        print(""" SAVEWALLET
+    1) Agregar gastos
+    2) Gastos
+    3) Total
+    4) Filtrar por categoria
+    5) Borrar gasto
+    6) Editar Gasto
+    7) Exportar a CSV
+    X) Salir\n""")
+        
+        opcion = input("Seleccione la opción: ")
+
+        if opcion == "1":
+            agregar_gasto()
+        elif opcion == "2":
+            mostrar_gastos()
+        elif opcion == "3":
+            mostrar_total()
+        elif opcion == "4":
+            filtrar()
+        elif opcion == "5":
+            borrar_gastos()
+        elif opcion == "6":
+            editar_gasto()
+        elif opcion == "7":
+            exportar_csv()
+        elif opcion.lower() == "x":
+            break
+        else:
+            limpiar_pantalla()
+            print("Opcion no válida presione enter para regresar al menú")
+            pausa()
+
+if __name__ == '__main__':
+    main()
